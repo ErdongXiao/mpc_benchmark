@@ -28,7 +28,12 @@ include_directories(
 
 link_directories(lib)
 
-set(EXTRA_LIBS libunitree_legged_sdk_amd64.so lcm)
+#set(EXTRA_LIBS libunitree_legged_sdk_amd64.so lcm)
+# add unitree hardware library, these flags must be correctly set
+
+include_directories($ENV{UNITREE_LEGGED_SDK_PATH}/include)
+link_directories($ENV{UNITREE_LEGGED_SDK_PATH}/lib/cpp/amd64)
+set(EXTRA_LIBS -pthread libunitree_legged_sdk.so)
 
 ## Declare cpp executables
 add_executable(${PROJECT_NAME}

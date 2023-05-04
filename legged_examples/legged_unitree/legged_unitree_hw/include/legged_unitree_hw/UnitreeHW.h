@@ -5,8 +5,9 @@
 
 #pragma once
 
-#include "unitree_legged_sdk/safety.h"
-#include "unitree_legged_sdk/udp.h"
+//#include "unitree_legged_sdk/safety.h"
+//#include "unitree_legged_sdk/udp.h"
+#include "unitree_legged_sdk/unitree_legged_sdk.h"
 
 #include <legged_hw/LeggedHW.h>
 
