@@ -11,6 +11,7 @@
 
 // ROS
 #include <ros/ros.h>
+#include <sensor_msgs/Joy.h>
 #include "legged_unitree_hw/ExecuteSetForceOffset.h"
 
 #include <legged_hw/LeggedHW.h>
@@ -90,6 +91,18 @@ class UnitreeHW : public LeggedHW {
   ros::ServiceServer execute_set_force_offset_srv_;
   bool execute_setting_force_callback(legged_unitree_hw::ExecuteSetForceOffset::Request &req,
                                       legged_unitree_hw::ExecuteSetForceOffset::Response &res);
+
+  // ! motor state
+  ros::Subscriber sub_joy_msg_;
+  void joy_callback(const sensor_msgs::Joy::ConstPtr &joy_msg);
+  void updateMotorState(); // break a leg
+
+  int joy_cmd_weaken_FL_= 0;
+  int joy_cmd_weaken_FR_ = 0;
+  int prev_joy_cmd_weaken_FL_ = 0;
+  int prev_joy_cmd_weaken_FR_ = 0;
+  bool joy_cmd_weaken_FL_request_, joy_cmd_weaken_FR_request_;
+
 };
 
 }  // namespace legged

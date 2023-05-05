@@ -35,6 +35,8 @@ bool UnitreeHW::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw_nh) {
 
   // setting force service server.
   execute_set_force_offset_srv_ = robot_hw_nh.advertiseService("/hardware_go1/setting_force_offset", &UnitreeHW::execute_setting_force_callback,this);
+  // motor state publisher
+  sub_joy_msg_ = robot_hw_nh.subscribe("/joy", 1000, &UnitreeHW::joy_callback, this);
 
   return true;
 }
@@ -77,6 +79,11 @@ void UnitreeHW::read(const ros::Time& /*time*/, const ros::Duration& /*period*/)
     handle.setVelocityDesired(0.);
     handle.setKd(3.);
   }
+
+  // update motor state
+  updateMotorState();
+//  std::cout << "** joy_cmd_weaken_FL_ " <<  joy_cmd_weaken_FL_ << std::endl;
+//  std::cout << "** joy_cmd_weaken_FR_ " <<  joy_cmd_weaken_FR_ << std::endl;
 }
 
 void UnitreeHW::write(const ros::Time& /*time*/, const ros::Duration& /*period*/) {
@@ -85,7 +92,12 @@ void UnitreeHW::write(const ros::Time& /*time*/, const ros::Duration& /*period*/
     lowCmd_.motorCmd[i].dq = static_cast<float>(jointData_[i].velDes_);
     lowCmd_.motorCmd[i].Kp = static_cast<float>(jointData_[i].kp_);
     lowCmd_.motorCmd[i].Kd = static_cast<float>(jointData_[i].kd_);
-    lowCmd_.motorCmd[i].tau = static_cast<float>(jointData_[i].ff_);
+    if ( (i == 2) && (joy_cmd_weaken_FL_ == 1) ) {
+      std::cout << "*********** MOTOR FAULT ! **********" << std::endl;
+      lowCmd_.motorCmd[i].tau = 0.2 * static_cast<float>(jointData_[i].ff_);
+    } else {
+      lowCmd_.motorCmd[i].tau = static_cast<float>(jointData_[i].ff_);
+    }
   }
   safety_->PositionLimit(lowCmd_);
   safety_->PowerProtect(lowCmd_, lowState_, powerLimit_);
@@ -158,6 +170,32 @@ bool UnitreeHW::execute_setting_force_callback(legged_unitree_hw::ExecuteSetForc
   ROS_WARN("Setting footForceOffset as %d",footForceOffset_);
   res.finishSetting = true;
   return true;
+}
+
+void UnitreeHW::joy_callback(const sensor_msgs::Joy::ConstPtr &joy_msg) {
+  if (joy_msg->axes[7] == 1) {
+    // up botton("Broken leg", raise up leg)
+    joy_cmd_weaken_FL_request_ = true;
+  } else if (joy_msg->axes[7] == -1) {
+    // down botton("Broken leg", raise up leg)
+    joy_cmd_weaken_FR_request_ = true;
+  }
+}
+
+void UnitreeHW::updateMotorState() {
+  prev_joy_cmd_weaken_FL_ = joy_cmd_weaken_FL_;
+  if (joy_cmd_weaken_FL_request_) {
+    joy_cmd_weaken_FL_ = joy_cmd_weaken_FL_ + 1;
+    joy_cmd_weaken_FL_ = joy_cmd_weaken_FL_ % 2;
+    joy_cmd_weaken_FL_request_ = false;
+  }
+
+  prev_joy_cmd_weaken_FR_ = joy_cmd_weaken_FR_;
+  if (joy_cmd_weaken_FR_request_) {
+    joy_cmd_weaken_FR_ = joy_cmd_weaken_FR_ + 1;
+    joy_cmd_weaken_FR_ = joy_cmd_weaken_FR_ % 2;
+    joy_cmd_weaken_FR_request_ = false;
+  }
 }
 
 }  // namespace legged
