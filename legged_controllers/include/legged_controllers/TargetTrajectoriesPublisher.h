@@ -6,6 +6,7 @@
 
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Twist.h>
+#include <sensor_msgs/Joy.h>
 #include <ros/subscriber.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/transform_listener.h>
@@ -78,8 +79,28 @@ class TargetTrajectoriesPublisher final {
       targetTrajectoriesPublisher_->publishTargetTrajectories(trajectories);
     };
 
+    auto joyCmdVelCallback = [this](const sensor_msgs::Joy::ConstPtr &joy_msg) {
+      if (latestObservation_.time == 0.0) {
+        return;
+      }
+
+      vector_t cmdVel = vector_t::Zero(4);
+      // right updown
+      cmdVel[0] = joy_msg->axes[4] * 0.2;
+      // right horiz
+      cmdVel[1] = joy_msg->axes[3] * 0.2;
+      // left horiz
+      cmdVel[3] = joy_msg->axes[0] * 0.4;
+
+      const auto trajectories = cmdVelToTargetTrajectories_(cmdVel, latestObservation_);
+      targetTrajectoriesPublisher_->publishTargetTrajectories(trajectories);
+    };
+
     goalSub_ = nh.subscribe<geometry_msgs::PoseStamped>("/move_base_simple/goal", 1, goalCallback);
     cmdVelSub_ = nh.subscribe<geometry_msgs::Twist>("/cmd_vel", 1, cmdVelCallback);
+
+    // joy cmd vel
+    joyCmdVelSub_ = nh.subscribe<sensor_msgs::Joy>("/joy", 1000, joyCmdVelCallback);
   }
 
  private:
@@ -87,7 +108,7 @@ class TargetTrajectoriesPublisher final {
 
   std::unique_ptr<TargetTrajectoriesRosPublisher> targetTrajectoriesPublisher_;
 
-  ::ros::Subscriber observationSub_, goalSub_, cmdVelSub_;
+  ::ros::Subscriber observationSub_, goalSub_, cmdVelSub_, joyCmdVelSub_;
   tf2_ros::Buffer buffer_;
   tf2_ros::TransformListener tf2_;
 

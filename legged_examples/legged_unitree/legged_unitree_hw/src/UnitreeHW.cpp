@@ -154,7 +154,6 @@ bool UnitreeHW::setupContactSensor(ros::NodeHandle& nh) {
 
 bool UnitreeHW::execute_setting_force_callback(legged_unitree_hw::ExecuteSetForceOffset::Request &req,
                                                legged_unitree_hw::ExecuteSetForceOffset::Response &res) {
-//  footForceOffset_ = footForceHang_;
   memcpy(footForceOffset_, footForceHang_, sizeof(footForceHang_));
   ROS_WARN("Setting footForceOffset as %d",footForceOffset_);
   res.finishSetting = true;
