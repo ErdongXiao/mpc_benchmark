@@ -6,7 +6,7 @@
     <xacro:property name="stick_mass" value="0.00001"/>
 
     <!-- simplified collision value -->
-    <xacro:property name="trunk_width" value="0.0935"/> 
+    <xacro:property name="trunk_width" value="0.0935"/>
     <xacro:property name="trunk_length" value="0.3762"/>
     <xacro:property name="trunk_height" value="0.114"/>
     <xacro:property name="hip_radius" value="0.046"/>
@@ -88,16 +88,16 @@
     <xacro:property name="thigh_izz" value="0.000740309489"/>
 
     <!-- calf -->
-    <xacro:property name="calf_mass" value="0.151"/>
-    <xacro:property name="calf_com_x" value="0.007105"/>
-    <xacro:property name="calf_com_y" value="-0.000239"/>
-    <xacro:property name="calf_com_z" value="-0.096933"/>
-    <xacro:property name="calf_ixx" value="0.002344758"/>
-    <xacro:property name="calf_ixy" value="0.0"/>
-    <xacro:property name="calf_ixz" value="-0.000141275"/>
-    <xacro:property name="calf_iyy" value="0.002360755"/>
-    <xacro:property name="calf_iyz" value="0.0"/>
-    <xacro:property name="calf_izz" value="0.000031158"/>
+    <xacro:property name="calf_mass" value="0.135862"/>
+    <xacro:property name="calf_com_x" value="0.006197"/>
+    <xacro:property name="calf_com_y" value="0.001408"/>
+    <xacro:property name="calf_com_z" value="-0.116695"/>
+    <xacro:property name="calf_ixx" value="0.001088793059"/>
+    <xacro:property name="calf_ixy" value="-0.000000255679"/>
+    <xacro:property name="calf_ixz" value="0.000007117814"/>
+    <xacro:property name="calf_iyy" value="0.001100428748"/>
+    <xacro:property name="calf_iyz" value="0.000002077264"/>
+    <xacro:property name="calf_izz" value="0.000024787446"/>
 
     <!-- foot -->
     <xacro:property name="foot_mass" value="0.06"/>

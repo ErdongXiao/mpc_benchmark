@@ -9,6 +9,10 @@
 //#include "unitree_legged_sdk/udp.h"
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
 
+// ROS
+#include <ros/ros.h>
+#include "legged_unitree_hw/ExecuteSetForceOffset.h"
+
 #include <legged_hw/LeggedHW.h>
 
 namespace legged {
@@ -79,6 +83,13 @@ class UnitreeHW : public LeggedHW {
 
   int powerLimit_{};
   int contactThreshold_{};
+
+  // ! foot force offset
+  double footForceOffset_[4];
+  double footForceHang_[4];
+  ros::ServiceServer execute_set_force_offset_srv_;
+  bool execute_setting_force_callback(legged_unitree_hw::ExecuteSetForceOffset::Request &req,
+                                      legged_unitree_hw::ExecuteSetForceOffset::Response &res);
 };
 
 }  // namespace legged

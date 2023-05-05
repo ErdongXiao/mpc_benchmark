@@ -32,6 +32,10 @@ bool UnitreeHW::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw_nh) {
     ROS_FATAL("Unknown robot type: %s", robot_type.c_str());
     return false;
   }
+
+  // setting force service server.
+  execute_set_force_offset_srv_ = robot_hw_nh.advertiseService("/hardware_go1/setting_force_offset", &UnitreeHW::execute_setting_force_callback,this);
+
   return true;
 }
 
@@ -57,8 +61,13 @@ void UnitreeHW::read(const ros::Time& /*time*/, const ros::Duration& /*period*/)
   imuData_.linearAcc_[2] = lowState_.imu.accelerometer[2];
 
   for (size_t i = 0; i < CONTACT_SENSOR_NAMES.size(); ++i) {
-    contactState_[i] = lowState_.footForce[i] > contactThreshold_;
+    contactState_[i] = (lowState_.footForce[i] - footForceOffset_[i]) > contactThreshold_;
+
+    // ! for clear foot force offset
+    footForceHang_[i] = lowState_.footForce[i];
+//    std::cout << footForceOffset_[i] << std::endl;
   }
+//  std::cout << "*********************" << std::endl;
 
   // Set feedforward and velocity cmd to zero to avoid for safety when not controller setCommand
   std::vector<std::string> names = hybridJointInterface_.getNames();
@@ -140,6 +149,15 @@ bool UnitreeHW::setupContactSensor(ros::NodeHandle& nh) {
   for (size_t i = 0; i < CONTACT_SENSOR_NAMES.size(); ++i) {
     contactSensorInterface_.registerHandle(ContactSensorHandle(CONTACT_SENSOR_NAMES[i], &contactState_[i]));
   }
+  return true;
+}
+
+bool UnitreeHW::execute_setting_force_callback(legged_unitree_hw::ExecuteSetForceOffset::Request &req,
+                                               legged_unitree_hw::ExecuteSetForceOffset::Response &res) {
+//  footForceOffset_ = footForceHang_;
+  memcpy(footForceOffset_, footForceHang_, sizeof(footForceHang_));
+  ROS_WARN("Setting footForceOffset as %d",footForceOffset_);
+  res.finishSetting = true;
   return true;
 }
 
