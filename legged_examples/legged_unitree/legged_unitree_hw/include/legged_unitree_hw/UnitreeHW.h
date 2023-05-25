@@ -84,6 +84,7 @@ class UnitreeHW : public LeggedHW {
 
   int powerLimit_{};
   int contactThreshold_{};
+  int contactThresholdNew_[4];
 
   // ! foot force offset
   double footForceOffset_[4];

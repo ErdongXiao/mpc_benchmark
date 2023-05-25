@@ -4,3 +4,7 @@ legged_unitree_hw:
   thread_priority: 95
   power_limit: 4
   contact_threshold: 135 # 40 + offset
+  contact_threshold1: 134
+  contact_threshold2: 147
+  contact_threshold3: 90
+  contact_threshold4: 198

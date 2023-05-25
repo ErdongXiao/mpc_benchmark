@@ -86,9 +86,9 @@ class TargetTrajectoriesPublisher final {
 
       vector_t cmdVel = vector_t::Zero(4);
       // right updown
-      cmdVel[0] = joy_msg->axes[4] * 0.2;
+      cmdVel[0] = joy_msg->axes[4] * 0.4;
       // right horiz
-      cmdVel[1] = joy_msg->axes[3] * 0.2;
+      cmdVel[1] = joy_msg->axes[3] * 0.4;
       // left horiz
       cmdVel[3] = joy_msg->axes[0] * 0.4;
 

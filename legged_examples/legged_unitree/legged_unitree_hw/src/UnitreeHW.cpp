@@ -63,11 +63,12 @@ void UnitreeHW::read(const ros::Time& /*time*/, const ros::Duration& /*period*/)
   imuData_.linearAcc_[2] = lowState_.imu.accelerometer[2];
 
   for (size_t i = 0; i < CONTACT_SENSOR_NAMES.size(); ++i) {
-    contactState_[i] = (lowState_.footForce[i] - footForceOffset_[i]) > contactThreshold_;
+//    contactState_[i] = (lowState_.footForce[i] - footForceOffset_[i]) > contactThreshold_;
+    contactState_[i] = (lowState_.footForce[i] - footForceOffset_[i]) > contactThresholdNew_[i];
 
     // ! for clear foot force offset
     footForceHang_[i] = lowState_.footForce[i];
-//    std::cout << footForceOffset_[i] << std::endl;
+//    std::cout << footForceHang_[i] << std::endl;
   }
 //  std::cout << "*********************" << std::endl;
 
@@ -93,8 +94,9 @@ void UnitreeHW::write(const ros::Time& /*time*/, const ros::Duration& /*period*/
     lowCmd_.motorCmd[i].Kp = static_cast<float>(jointData_[i].kp_);
     lowCmd_.motorCmd[i].Kd = static_cast<float>(jointData_[i].kd_);
     if ( (i == 2) && (joy_cmd_weaken_FL_ == 1) ) {
-      std::cout << "*********** MOTOR FAULT ! **********" << std::endl;
-      lowCmd_.motorCmd[i].tau = 0.2 * static_cast<float>(jointData_[i].ff_);
+      lowCmd_.motorCmd[i].tau = 0.15 * static_cast<float>(jointData_[i].ff_);
+    } else if ( (i == 5) && (joy_cmd_weaken_FR_ == 1) ) {
+      lowCmd_.motorCmd[i].tau = 0.05 * static_cast<float>(jointData_[i].ff_);
     } else {
       lowCmd_.motorCmd[i].tau = static_cast<float>(jointData_[i].ff_);
     }
@@ -158,6 +160,11 @@ bool UnitreeHW::setupImu() {
 
 bool UnitreeHW::setupContactSensor(ros::NodeHandle& nh) {
   nh.getParam("contact_threshold", contactThreshold_);
+  nh.getParam("contact_threshold1", contactThresholdNew_[0]);
+  nh.getParam("contact_threshold2", contactThresholdNew_[1]);
+  nh.getParam("contact_threshold3", contactThresholdNew_[2]);
+  nh.getParam("contact_threshold4", contactThresholdNew_[3]);
+
   for (size_t i = 0; i < CONTACT_SENSOR_NAMES.size(); ++i) {
     contactSensorInterface_.registerHandle(ContactSensorHandle(CONTACT_SENSOR_NAMES[i], &contactState_[i]));
   }
